@@ -56,7 +56,11 @@ const Formulario = () => {
           </div>
         </div>
 
-        <input type="submit" value="Enviar" />
+        <div className="">
+          <input type="submit" value="Enviar" />
+        </div>
+
+
       </form>
     </div>
   );

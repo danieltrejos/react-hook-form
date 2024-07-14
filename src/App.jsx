@@ -1,10 +1,11 @@
 
-import { Formulario } from "./components"
+import { Formulario, FormularioFatz } from "./components"
 function App() {
 
   return (
     <>
-      <Formulario />
+      {/* <Formulario /> */}
+      <FormularioFatz />
     </>
   )
 }
