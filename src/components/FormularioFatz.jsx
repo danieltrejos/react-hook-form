@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 
 const FormularioFatz = () => {
@@ -8,7 +7,9 @@ const FormularioFatz = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    watch,
+    setValue
   } = useForm()
 
   console.log(errors)
@@ -16,6 +17,12 @@ const FormularioFatz = () => {
   // Funcion que se ejecuta cuando se envia el formulario invicando el handlesubmit de react-hook-form
   const onSubmit = handleSubmit((data) => {
     console.log(data)
+
+    //
+    data.pais.toUpperCase()
+
+    //Antes de enviar
+    //fecthe el formulario
   })
 
 
@@ -79,21 +86,33 @@ const FormularioFatz = () => {
               required: {
                 value: true,
                 message: 'El password es requerido.',
+              },
+              minLength: {
+                value: 6,
+                message: 'El password debe tener al menos 6 caracteres.',
               }
             })}
           />
-          {errors.password && <span>El password es requerido</span>}
+          {errors.password && <span>{errors.password.message}</span>}
 
-          <label htmlFor="cpassword">Confirmar Password: </label>
+          <label htmlFor="confirmarPassword">Confirmar Password: </label>
           <input
             type="password"
             placeholder="Ingrese su password nuevamente"
-            {...register('cpassword', {
-              required: true
+            {...register('confirmarPassword', {
+              required: {
+                value: true,
+                message: 'La confirmacion del password es requerido.',
+              },
+              validate: value => value === watch('password') || 'Los passwords no coinciden'
             })}
           />
-          {errors.cpassword && <span>La confirmacion del password es requerido</span>}
 
+          {errors.confirmarPassword && (
+            <span>{errors.confirmarPassword.message}</span>
+          )}
+
+          {/* Fecha de nacimiento - Validada */}
           <label htmlFor="fechaNacimiento">Fecha de nacimiento: </label>
           <input
             type="date"
@@ -105,11 +124,15 @@ const FormularioFatz = () => {
               },
               validate: (value) => {
                 console.log(value)
-                return 'Fecha de nacimiento no valida'
+                const fechaNacimiento = new Date(value)
+                const fechaActual = new Date()
+                const edad = fechaActual.getFullYear() - fechaNacimiento.getFullYear();
+                console.log(edad)
+                return edad >= 18 || 'Debes ser mayor de edad'
               }
             })}
           />
-          {errors.fechaNacimiento && <span>La fecha de nacimiento es requerida</span>}
+          {errors.fechaNacimiento && <span>{errors.fechaNacimiento.message}</span>}
 
           {/* Seleccionar pais */}
           <label htmlFor="pais">País</label>
@@ -123,27 +146,56 @@ const FormularioFatz = () => {
             <option value="ch">Chile</option>
           </select>
 
+          {/* Input condicional */}
+          {
+            watch('pais') == 'ar' && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Provincia"
+                  {...register('provincia', {
+                    required: {
+                      value: true,
+                      message: 'Provincia es requerida'
+                    }
+                  })}
+                />
+                {errors.provincia && <span>{errors.provincia.message}</span>}
+              </>
+            )
+          }
+
           {/* Archivo */}
           <label htmlFor="foto">Foto de perfil</label>
           <input
             type="file"
-            {...register('foto')}
+            onChange={(e) => {
+              console.log(e.target.files[0])
+              setValue('fotoDelUsuario', e.target.files[0].name)
+            }}
           />
 
           {/* Terminos */}
           <div>
             <label htmlFor="terminos">Acepto terminos y condiciones</label>
             <input
-
               type="checkbox"
               {...register('terminos', {
-                required: true
+                required: {
+                  value: true,
+                  message: 'Debe aceptar los terminos y condiciones.',
+                }
               })}
             />
           </div>
-          {errors.terminos && <span>Debe aceptar los terminos y condiciones</span>}
+          {errors.terminos && <span>{errors.terminos.message}</span>}
 
           <button type="submit">Enviar</button>
+
+          <pre>
+            {JSON.stringify(watch(), null, 2)}
+          </pre>
+
         </form>
       </div>
     </>
